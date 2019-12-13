@@ -1,4 +1,5 @@
 import threading
+from time import time
 
 
 class InputStream(threading.Thread):
@@ -7,17 +8,14 @@ class InputStream(threading.Thread):
         self.client = client
 
     def run(self):
-        print ("input stream is running now")
         while not self.client.endCommunication:
             data, information = self.getData()
-            # sleep(0.5)
-            # print (data)
-            # sleep(0.5)
 
             self.client.processNewAck(data)
-        print ("close input stream")
 
     def getData(self):
         packet, senderInformation = self.client.socket.recvfrom(1024)
         data = self.client.tcp.parseTcpPacket(bytes(packet))
+        currentTime = time()
+        self.client.setEndOfRtt(data[self.client.tcp.AckNumberIndex] - self.client.segmentSize, currentTime)
         return data, senderInformation

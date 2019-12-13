@@ -55,7 +55,7 @@ class Tcp:
         fin = packet[self.FinIndex]
         syn = packet[self.SynIndex]
         rst = packet[self.RstIndex]
-        psh = packet[self.AckIndex]
+        psh = packet[self.PshIndex]
         ack = packet[self.AckIndex]
         urg = packet[self.UrgIndex]
         headerLength = packet[self.HeaderLengthIndex]

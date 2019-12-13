@@ -43,22 +43,31 @@ class Server:
                 return information[self.ServerSocketIndex]
         return None
 
+    def removeServerSocket(self, ip, port):
+        for information in self.serverSockets:
+            if information[self.srcIpIndex] == ip and information[self.srcPortIndex] == port:
+                self.serverSockets.remove(information)
+                return 0
+        return -1
+
     def run(self):
         while True:
             data, senderInformation = self.getData()
             if not self.tcp.validPacket(data):
                 continue
             if not self.existSocket(senderInformation[0], senderInformation[1]):
-                print ("initial ack")
                 newSocket = ServerSocket(self.port, self.socket, senderInformation[0], senderInformation[1],
                                          (data, senderInformation), self)
                 newSocket.start()
                 self.addSocketInformation(senderInformation[0], senderInformation[1], newSocket)
             else:
-                print ("receive packet")
                 currentServerSocket = self.getServerSocket(senderInformation[0], senderInformation[1])
                 currentServerSocket.currentPacket = (data, senderInformation)
                 currentServerSocket.run()
+                if currentServerSocket.state == "terminateCommunication":
+                    result = self.removeServerSocket(senderInformation[0], senderInformation[1])
+                    if result == 0:
+                        print ("Connection " + str(senderInformation[1]) + " closed")
 
 
 server = Server(8080)
